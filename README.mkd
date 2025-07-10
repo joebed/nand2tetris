@@ -1,0 +1,6 @@
+# Nand 2 Tetris
+
+Projects from https://www.nand2tetris.org/course
+
+See the site for details on the course, which I highly recommend! I am reading the book as I go along and it's a good refresher on computer architecture.
+

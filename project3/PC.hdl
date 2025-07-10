@@ -1,0 +1,23 @@
+// This file is part of www.nand2tetris.org
+// and the book "The Elements of Computing Systems"
+// by Nisan and Schocken, MIT Press.
+// File name: projects/3/a/PC.hdl
+/**
+ * A 16-bit counter.
+ * if      reset(t): out(t+1) = 0
+ * else if load(t):  out(t+1) = in(t)
+ * else if inc(t):   out(t+1) = out(t) + 1
+ * else              out(t+1) = out(t)
+ */
+CHIP PC {
+    IN in[16], reset, load, inc;
+    OUT out[16];
+    
+    PARTS:
+    Inc16(in=lastval , out=lastvalplusone );
+    Mux16(a=lastval , b=lastvalplusone , sel=inc , out=first );
+    Mux16(a=first , b=in, sel=load , out=second );
+    Mux16(a=second , b=false , sel=reset , out=toload ); // Learned false is essentially piping ground to the input, so this is valid
+    Register(in=toload , load=true , out=out, out=lastval ); // Learned that you can pipe an output to an input of a chip before the output is defined, a loopback
+
+}
