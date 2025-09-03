@@ -2,8 +2,7 @@
 
 #include "code.h"
 
-Instruction Code::dest_ins(const std::string& dest_val)
-{
+Instruction Code::dest_ins(const std::string& dest_val) {
 	Instruction return_val(0);
 	if (dest_val.find('M') != std::string::npos)
 	{
