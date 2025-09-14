@@ -1,5 +1,10 @@
 #pragma once
 
+#include <string>
+
+namespace types
+{
+
 enum CommandType
 {
 	C_ARITHMETIC,
@@ -12,4 +17,8 @@ enum CommandType
 	C_RETURN,
 	C_CALL,
 };
+
+CommandType str_to_command_type(const std::string& command_str);
+
+} // namespace types
 

@@ -1,4 +1,5 @@
 #include <algorithm>
+#include <sstream>
 
 #include "parser.h"
 
@@ -29,15 +30,50 @@ std::optional<std::string> Parser::advance() // copied from Assembler, can refac
 
 CommandType Parser::command_type(const std::string& line)
 {
+	std::stringstream ss(line);
+	ss << command_str;
+	return types::str_to_command_type(command_str);
 }
 
 std::string Parser::arg1(const std::string& line, const CommandType command)
 {
+	std::string trash;
+	if (command == CommandType::C_ARITHMETIC)
+	{
+		ss << arg1;
+	}
+	else
+	{
+		ss << trash << arg1;
+	}
+	return arg1;
 }
 
 int Parser::arg2(const std::string& line, const CommandType command)
 {
+	std::stringstream ss(line);
+	std::string trash;
+	ss << trash << trash << arg2;
+	return arg2;
 }
 
+std::tuple<CommandType, std::string, std::optional<int>> Parser::parse_command(const std::string& line)
+{
+	std::string command_str;
+	std::string arg1;
+	int arg2;
 
+	std::optional<int> arg2_optional;
+
+	std::stringstream ss(line);
+	ss << command_str;
+
+	const CommandType command_type = str_to_command_type(command_str);
+	if (command_type == CommandType::C_ARITHMETIC)
+	{
+		arg1 = command_str
+	}
+
+	return {command_type, arg1, arg2_optional};
+}
 

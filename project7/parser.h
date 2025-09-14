@@ -5,15 +5,14 @@
 #include <string>
 
 #include "types.h"
+using namespace types;
 
 class Parser
 {
 public:
 	Parser(const std::string& input_filename);
 	std::optional<std::string> advance();
-	static CommandType command_type(const std::string& line);
-	static std::string arg1(const std::string& line, const CommandType command);
-	static int arg2(const std::string& line, const CommandType command);
+	static std::tuple<CommandType, std::string, std::optional<int>> parse_command(const std::string& line);
 private:
 	std::ifstream fin_;
 };
