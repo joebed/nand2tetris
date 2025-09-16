@@ -1,5 +1,6 @@
 #include <fstream>
 #include <iostream>
+#include <vector>
 
 #include "code_writer.h"
 #include "parser.h"
@@ -16,20 +17,20 @@ int main(int argc, char** argv)
 	std::vector<std::string> files;
 	CodeWriter code_writer;
 	for (const std::string& file : files)
-	{
+	{;
 		Parser parser(file);
 		// output file needed for output stream
 		std::string output_filename = "";
 		code_writer.set_output_stream(output_filename);
-		std::string s;
+		std::optional<std::string> s;
 		while ((s = parser.advance()))
 		{
-			CommandType command_type = Parser::command_type(s);
+			auto [command_type, arg1, arg2_optional] = Parser::parse_command(s.value());
 			if (command_type == CommandType::C_PUSH || command_type == CommandType::C_POP)
 			{
-				code_writer(
+				code_writer.write_push_pop(command_type, arg1, arg2_optional.value());
 			}
-			else if (command_type = CommandType::C_ARITHMETIC)
+			else if (command_type == CommandType::C_ARITHMETIC)
 			{
 				code_writer.write_arithmetic(line);
 			}
@@ -38,7 +39,5 @@ int main(int argc, char** argv)
 		
 		code_writer.close();
 	}
-
-
 }
 

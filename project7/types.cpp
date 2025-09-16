@@ -1,6 +1,7 @@
 #include "types.h"
 
 #include <unordered_map>
+#include <stdexcept>
 
 namespace types
 {
