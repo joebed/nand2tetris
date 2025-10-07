@@ -28,11 +28,11 @@ int main(int argc, char** argv)
 			auto [command_type, arg1, arg2_optional] = Parser::parse_command(s.value());
 			if (command_type == CommandType::C_PUSH || command_type == CommandType::C_POP)
 			{
-				code_writer.write_push_pop(command_type, arg1, arg2_optional.value());
+				// code_writer.write_push_pop(command_type, arg1, arg2_optional.value());
 			}
 			else if (command_type == CommandType::C_ARITHMETIC)
 			{
-				code_writer.write_arithmetic(line);
+				// code_writer.write_arithmetic(line);
 			}
 		}
 
