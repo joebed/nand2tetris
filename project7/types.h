@@ -23,6 +23,7 @@ CommandType str_to_command_type(const std::string& command_str);
 enum SegmentType
 {
 	CONSTANT,
+	STATIC,
 	LOCAL,
 	ARGUMENT,
 	THIS,
@@ -31,6 +32,7 @@ enum SegmentType
 };
 
 SegmentType str_to_segment_type(const std::string& segment_str);
+std::string segment_to_reg_name(const SegmentType segment);
 
 } // namespace types
 
