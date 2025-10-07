@@ -2,6 +2,7 @@
 
 #include <fstream>
 #include <optional>
+#include <set>
 #include <string>
 
 #include "types.h"
@@ -15,5 +16,9 @@ public:
 	static std::tuple<CommandType, std::string, std::optional<int>> parse_command(const std::string& line);
 private:
 	std::ifstream fin_;
+
+	static std::set<CommandType> commands_with_arg2;
 };
+
+
 
