@@ -1,5 +1,6 @@
 #pragma once
 
+#include <optional>
 #include <string>
 
 namespace types
@@ -7,15 +8,23 @@ namespace types
 
 enum CommandType
 {
-	C_ARITHMETIC,
-	C_PUSH,
-	C_POP,
-	C_LABEL,
-	C_GOTO,
-	C_IF,
-	C_FUNCTION,
-	C_RETURN,
-	C_CALL,
+	ADD,
+	SUB,
+	NEG,
+	EQ,
+	GT,
+	LT,
+	AND,
+	OR,
+	NOT,
+	PUSH,
+	POP,
+	LABEL,
+	GOTO,
+	IF,
+	FUNCTION,
+	RETURN,
+	CALL,
 };
 
 CommandType str_to_command_type(const std::string& command_str);
@@ -28,11 +37,23 @@ enum SegmentType
 	ARGUMENT,
 	THIS,
 	THAT,
+	POINTER_THIS,
+	POINTER_THAT,
 	TEMP,
 };
 
-SegmentType str_to_segment_type(const std::string& segment_str);
+SegmentType str_to_segment_type(const std::string& segment_str, const int index);
+// Assumes temp, static, and pointer segments are handled before hand since they have special register translation logic
 std::string segment_to_reg_name(const SegmentType segment);
+
+enum AluCommandType
+{
+	TwoOperand,
+	OneOperand,
+};
+
+AluCommandType command_to_operand_type(const CommandType command_type);
+char command_to_character_operand(const CommandType command_type);
 
 } // namespace types
 

@@ -1,4 +1,3 @@
-#include <fstream>
 #include <iostream>
 #include <vector>
 
@@ -8,36 +7,33 @@
 int main(int argc, char** argv)
 {
 	// TODO: Allow taking in a directory and doing all the shits with n Parsers and 1 CodeWriter
-	if (argc != 2)
+	if (argc == 1)
 	{
 		std::cerr << "Usage: vm_translator <file with .vm extension>\n";
 		return 1;
 	}
 
 	std::vector<std::string> files;
-	CodeWriter code_writer;
+	for (int i = 1; i < argc; ++i)
+	{
+		files.push_back(argv[i]);
+	}
+
+	vm_translator::CodeWriter code_writer;
 	for (const std::string& file : files)
-	{;
+	{
 		Parser parser(file);
-		// output file needed for output stream
-		std::string output_filename = "";
-		code_writer.set_output_stream(output_filename);
+		code_writer.set_output_stream(file);
 		std::optional<std::string> s;
 		while ((s = parser.advance()))
 		{
-			auto [command_type, arg1, arg2_optional] = Parser::parse_command(s.value());
-			if (command_type == CommandType::C_PUSH || command_type == CommandType::C_POP)
-			{
-				// code_writer.write_push_pop(command_type, arg1, arg2_optional.value());
-			}
-			else if (command_type == CommandType::C_ARITHMETIC)
-			{
-				// code_writer.write_arithmetic(line);
-			}
-		}
+			code_writer.write_comment(s.value());
 
-		
+			auto [command_type, arg1_optional, arg2_optional] = Parser::parse_command(s.value());
+			code_writer.write_command_base(command_type, arg1_optional, arg2_optional);
+		}
 		code_writer.close();
 	}
+	std::cout << "All done :)\n";
 }
 

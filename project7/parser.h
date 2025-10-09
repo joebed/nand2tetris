@@ -13,7 +13,7 @@ class Parser
 public:
 	Parser(const std::string& input_filename);
 	std::optional<std::string> advance();
-	static std::tuple<CommandType, std::string, std::optional<int>> parse_command(const std::string& line);
+	static std::tuple<CommandType, std::optional<SegmentType>, std::optional<int>> parse_command(const std::string& line);
 private:
 	std::ifstream fin_;
 

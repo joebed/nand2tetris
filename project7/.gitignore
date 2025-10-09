@@ -1,2 +1,4 @@
 vm_translator
+*.o
+*.asm
 
