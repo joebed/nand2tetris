@@ -1,4 +1,5 @@
-all: vm_translator
+all: 
+	make clean && make vm_translator
 
 vm_translator: main.o code_writer.o parser.o types.o
 	g++ main.o code_writer.o parser.o types.o -std=c++17 -o vm_translator

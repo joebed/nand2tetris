@@ -30,7 +30,7 @@ int main(int argc, char** argv)
 			code_writer.write_comment(s.value());
 
 			auto [command_type, arg1_optional, arg2_optional] = Parser::parse_command(s.value());
-			code_writer.write_command_base(command_type, arg1_optional, arg2_optional);
+			code_writer.write_command(command_type, arg1_optional, arg2_optional);
 		}
 		code_writer.close();
 	}
