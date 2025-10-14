@@ -1,5 +1,7 @@
 push constant 1
 push constant 2
-push argument 2
-pop argument 1
+eq
+push constant 10
+push constant 10
+eq
 

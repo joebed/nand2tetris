@@ -1,5 +1,4 @@
 #include "types.h"
-
 #include <set>
 #include <map>
 #include <stdexcept>

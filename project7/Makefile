@@ -2,7 +2,7 @@ all:
 	make clean && make vm_translator
 
 vm_translator: main.o code_writer.o parser.o types.o
-	g++ main.o code_writer.o parser.o types.o -std=c++17 -o vm_translator
+	g++ -g main.o code_writer.o parser.o types.o -std=c++17 -o vm_translator
 
 code_writer.o: code_writer.cpp code_writer.h code_writer.ipp
 	g++ -c code_writer.cpp -std=c++17

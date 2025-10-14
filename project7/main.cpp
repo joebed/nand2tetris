@@ -28,7 +28,7 @@ int main(int argc, char** argv)
 		while ((s = parser.advance()))
 		{
 			code_writer.write_comment(s.value());
-
+			std::cout << "Working on " << s.value() << "\n";
 			auto [command_type, arg1_optional, arg2_optional] = Parser::parse_command(s.value());
 			code_writer.write_command(command_type, arg1_optional, arg2_optional);
 		}
