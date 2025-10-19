@@ -6,56 +6,58 @@
 namespace vm_translator
 {
 CodeWriter::CodeWriter()
-	: eq_counter_{0}
-	, gt_counter_{0}
-	, lt_counter_{0}
+	: comp_counter_{0}
 {}
 
-void CodeWriter::set_output_stream(const std::string& input_filename)
+void CodeWriter::set_output_stream(const std::string& output_filename, bool write_bootstrap_code)
 {
-	if (input_filename == "")
+	if (output_filename == "")
 	{
 		throw std::runtime_error("Output filename not specified");
 	}
-	size_t base_filename_end = input_filename.find(".vm");
-	if (base_filename_end == std::string::npos)
-	{
-		std::string e = "Input filename (" + input_filename + ") does not end in '.vm'";
-		throw std::runtime_error(e);
-	}
-	curr_filebase_ = input_filename.substr(0, base_filename_end);
 
-	std::string output_filename = curr_filebase_ + ".asm";
 	std::cout << "Writing output to " << output_filename << "\n";
 	fout_ = std::ofstream(output_filename);
 
-	curr_filebase_ = std::string(curr_filebase_.begin() + curr_filebase_.find_last_of('/') + 1, curr_filebase_.end());
+	size_t last_slash = output_filename.find_last_of('/');
+	if (last_slash != std::string::npos)
+	{
+		curr_filebase_ = std::string(output_filename.begin() + last_slash + 1, output_filename.end() - 4); // 4 to remove ".asm"
+	}
+	else
+	{
+		curr_filebase_ = output_filename.substr(0, output_filename.find(".asm"));
+	}
 
-	if (curr_filebase_ == "MyTest")
+	if (write_bootstrap_code)
 	{
 		segment_initialization("SP", 256);
 		segment_initialization("LCL", 300);
 		segment_initialization("ARG", 400);
 		segment_initialization("THIS", 3000);
 		segment_initialization("THAT", 3010);
+
+		static constexpr const char* start_label = "START";
+		goto_label(start_label);
+		// TODO: Other bootstrap code
+		place_label(true_label);
+		fout_ << "D=-1\n";
+		goto_label(jump_to_previous_label);
+		place_label(false_label);
+		fout_ << "D=0\n";
+		place_label(jump_to_previous_label);
+		fout_ << "@R15\n"
+			<< "A=M\n"
+			<< "0;JMP\n";
+		place_label("START");
 	}
 }
 
 void CodeWriter::close()
 {
-	fout_ << "(END)\n"
-		<< "@END\n"
-		<< "0;JMP\n"
-		<< "(" << true_label << ")\n";
-	fout_ << "D=-1\n";
-	fout_ << "@JUMP_TO_PREVIOUS\n"
-		<< "0;JMP\n"
-		<< "(" << false_label << ")\n";
-	fout_ << "D=0\n";
-	fout_ << "(JUMP_TO_PREVIOUS)\n"
-		<< "@R15\n"
-		<< "A=M\n"
-		<< "0;JMP\n";
+	static constexpr const char* end_label = "END";
+	place_label(end_label);
+	goto_label(end_label);
 	fout_.close();
 	fout_ = std::ofstream();
 }
@@ -65,31 +67,19 @@ void CodeWriter::write_command(const CommandType command, const std::optional<Se
 	switch (command)
 	{
 		case (CommandType::ADD):
-			write_add_command();
-			break;
 		case (CommandType::SUB):
-			write_sub_command();
+		case (CommandType::AND):
+		case (CommandType::OR):
+			write_two_operand_command(command);
 			break;
 		case (CommandType::NEG):
-			write_neg_command();
+		case (CommandType::NOT):
+			write_one_operand_command(command);
 			break;
 		case (CommandType::EQ):
-			write_eq_command();
-			break;
 		case (CommandType::GT):
-			write_gt_command();
-			break;
 		case (CommandType::LT):
-			write_lt_command();
-			break;
-		case (CommandType::AND):
-			write_and_command();
-			break;
-		case (CommandType::OR):
-			write_or_command();
-			break;
-		case (CommandType::NOT):
-			write_not_command();
+			write_comparison_command(command);
 			break;
 		case (CommandType::PUSH):
 			// TODO: error handling on the optionals
@@ -212,32 +202,84 @@ void CodeWriter::segment_initialization(const std::string& segment, const int st
 }
 
 // Don't really need to pop twice, then push. Just need to pop once then add D to the current M
-void CodeWriter::write_add_command()
+void CodeWriter::write_two_operand_command(const types::CommandType command)
 {
 	pop_from_stack();
-	fout_ << "A=A-1\n"
-		<< "M=D+M\n";
+	fout_ << "A=A-1\n";
+	if (command == types::CommandType::SUB) // this is specifically for the assembler in the online ide
+	{
+		fout_ << "M=M" << types::command_to_character_operand(command) << "D\n";
+	}
+	else
+	{
+		fout_ << "M=D" << types::command_to_character_operand(command) << "M\n";
+	}
 }
-
-void CodeWriter::write_sub_command()
-{
-	pop_from_stack();
-	fout_ << "A=A-1\n"
-		<< "M=M-D\n";
-}
-
-void CodeWriter::write_neg_command()
+void CodeWriter::write_one_operand_command(const types::CommandType command)
 {
 	goto_top_of_stack();
-	fout_ << "M=-M\n";
+	fout_ << "M=" << types::command_to_character_operand(command) << "M\n";
 }
+
+// void CodeWriter::write_eq_command()
+// {
+// 	const std::string label = curr_filebase_ + ".EQ_" + std::to_string(eq_counter_++);
+// 	conditional_handler(label, "JEQ");
+// }
+//
+// void CodeWriter:: write_gt_command()
+// {
+// 	const std::string label = curr_filebase_ + ".GT_" + std::to_string(gt_counter_++);
+// 	conditional_handler(label, "JGT");
+// }
+//
+// void CodeWriter:: write_lt_command()
+// {
+// 	const std::string label = curr_filebase_ + ".LT_" + std::to_string(lt_counter_++);
+// 	conditional_handler(label, "JLT");
+// }
+void CodeWriter::write_comparison_command(const types::CommandType command)
+{
+	const std::string label = curr_filebase_ + ".COMP_" + std::to_string(comp_counter_++);
+	conditional_handler(label, types::comp_command_to_hack_str(command));
+}
+
+// void CodeWriter::write_sub_command()
+// {
+// 	pop_from_stack();
+// 	fout_ << "A=A-1\n"
+// 		<< "M=M-D\n";
+// }
+// void CodeWriter:: write_and_command()
+// {
+// 	pop_from_stack();
+// 	fout_ << "A=A-1\n"
+// 		<< "M=D&M\n";
+// }
+// void CodeWriter:: write_or_command()
+// {
+// 	pop_from_stack();
+// 	fout_ << "A=A-1\n"
+// 		<< "M=D|M\n";
+// }
+
+// void CodeWriter::write_neg_command()
+// {
+// 	goto_top_of_stack();
+// 	fout_ << "M=-M\n";
+// }
+// void CodeWriter:: write_not_command()
+// {
+// 	goto_top_of_stack();
+// 	fout_ << "M=!M\n";
+// }
 
 void CodeWriter::true_false_handler(std::string_view jump_command)
 {
 	fout_ << "D=M-D\n"
 		<< "@" << true_label << "\n"
 		<< "D;" << jump_command << "\n"
-		<< "@" << false_label << "\n"
+		<< "@" << false_label << "\n" // not using goto_label to make it super explicit that we first conditionally go to true, then to false if that did not work
 		<< "0;JMP\n";
 }
 
@@ -251,44 +293,6 @@ void CodeWriter::conditional_handler(std::string_view label, std::string_view ju
 	place_label(label);
 	goto_top_of_stack();
 	fout_ << "M=D\n";
-}
-
-void CodeWriter::write_eq_command()
-{
-	const std::string label = curr_filebase_ + ".EQ_" + std::to_string(eq_counter_++);
-	conditional_handler(label, "JEQ");
-}
-
-void CodeWriter:: write_gt_command()
-{
-	const std::string label = curr_filebase_ + ".GT_" + std::to_string(gt_counter_++);
-	conditional_handler(label, "JGT");
-}
-
-void CodeWriter:: write_lt_command()
-{
-	const std::string label = curr_filebase_ + ".LT_" + std::to_string(lt_counter_++);
-	conditional_handler(label, "JLT");
-}
-
-void CodeWriter:: write_and_command()
-{
-	pop_from_stack();
-	fout_ << "A=A-1\n"
-		<< "M=D&M\n";
-}
-
-void CodeWriter:: write_or_command()
-{
-	pop_from_stack();
-	fout_ << "A=A-1\n"
-		<< "M=D|M\n";
-}
-
-void CodeWriter:: write_not_command()
-{
-	goto_top_of_stack();
-	fout_ << "M=!M\n";
 }
 
 void CodeWriter::write_push_command(const SegmentType segment, const int index)
@@ -346,6 +350,11 @@ void CodeWriter:: write_call_command()
 void CodeWriter::place_label(std::string_view s)
 {
 	fout_ << "(" << s << ")\n";
+}
+void CodeWriter::goto_label(std::string_view s)
+{
+		fout_ << "@" << s << "\n"
+			<< "0;JMP\n";
 }
 
 } // namespace vm_translator

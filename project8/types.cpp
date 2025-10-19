@@ -72,6 +72,12 @@ const std::map<CommandType, char> command_to_character_operand_map = {
 	{NOT, '!'},
 };
 
+const std::map<CommandType, std::string> comp_command_to_hack_map = {
+	{EQ, "JEQ"},
+	{GT, "JGT"},
+	{LT, "JLT"},
+};
+
 } // namespace
 
 CommandType str_to_command_type(const std::string& command_str)
@@ -125,6 +131,17 @@ char command_to_character_operand(const CommandType command_type)
 {
 	auto it = command_to_character_operand_map.find(command_type);
 	if (it == command_to_character_operand_map.end())
+	{
+		std::string s = "Command " + std::to_string(command_type) + " does not have operand in hack assembly";
+		throw std::runtime_error(s);
+	}
+	return it->second;
+}
+
+std::string comp_command_to_hack_str(const CommandType command_type)
+{
+	auto it = comp_command_to_hack_map.find(command_type);
+	if (it == comp_command_to_hack_map.end())
 	{
 		std::string s = "Command " + std::to_string(command_type) + " does not have operand in hack assembly";
 		throw std::runtime_error(s);

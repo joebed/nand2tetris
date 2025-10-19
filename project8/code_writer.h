@@ -14,7 +14,7 @@ class CodeWriter
 public:
 	CodeWriter();
 
-	void set_output_stream(const std::string& input_filename);
+	void set_output_stream(const std::string& output_filename, bool write_bootstrap_code);
 	void close();
 	void write_command(const CommandType command, const std::optional<SegmentType>& segment, const std::optional<int>& index);
 	void write_comment(const std::string& line);
@@ -22,12 +22,11 @@ public:
 private:
 	std::ofstream fout_;
 	std::string curr_filebase_;
-	int eq_counter_;
-	int gt_counter_;
-	int lt_counter_;
+	int comp_counter_;
 
 	static constexpr const char* false_label = "FALSE_TO_D";
 	static constexpr const char* true_label = "TRUE_TO_D";
+	static constexpr const char* jump_to_previous_label = "JUMP_TO_PREVIOUS";
 
 	std::string static_symbol(const int index);
 
@@ -58,17 +57,18 @@ private:
 	// Initialization, debugging fn
 	void segment_initialization(const std::string& segment, const int starting_point);
 
-	void write_add_command();
-	void write_sub_command();
-	void write_neg_command();
+	void write_two_operand_command(const types::CommandType command);
+	void write_one_operand_command(const types::CommandType command);
+	void write_comparison_command(const types::CommandType command);
+
 	void write_eq_command();
 	void write_gt_command();
 	void write_lt_command();
-	void write_and_command();
-	void write_or_command();
-	void write_not_command();
+
 	void write_push_command(const SegmentType segment, const int index);
 	void write_pop_command(const SegmentType segment, const int index);
+
+	// TODO ALL OF THESE
 	void write_label_command();
 	void write_goto_command();
 	void write_if_command();
@@ -76,8 +76,12 @@ private:
 	void write_return_command();
 	void write_call_command();
 
+	// IMPORTANT: this can only be called once per label
 	void place_label(std::string_view s);
+	void goto_label(std::string_view s);
+
 	void true_false_handler(std::string_view jump_command);
+	// Specifically for eq, gt, lt commands in write_comparison_command
 	void conditional_handler(std::string_view label, std::string_view jump_command);
 };
 

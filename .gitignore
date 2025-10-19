@@ -1,5 +1,9 @@
-project6/*.hack
-project6/*.asm
 *main
-*.o
+**/.o
+**/.asm
+**/.vm
+**/.hack
+**/vm_translator
+**/assembler
+**/tests
 
