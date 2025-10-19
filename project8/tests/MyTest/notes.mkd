@@ -1,0 +1,23 @@
+# TO TEST:
+## Push
+- [ ] Arg segment
+- [ ] Local segment
+- [ ] This segment
+- [ ] That segment
+- [ ] Pointer 0
+- [ ] Pointer 1
+- [ ] Temp Segment
+- [ ] Constant Segment
+- [ ] Static
+
+## Pop
+- [ ] Arg segment
+- [ ] Local segment
+- [ ] This segment
+- [ ] That segment
+- [ ] Pointer 0
+- [ ] Pointer 1
+- [ ] Temp Segment
+- [ ] Constant Segment
+- [ ] Static
+
